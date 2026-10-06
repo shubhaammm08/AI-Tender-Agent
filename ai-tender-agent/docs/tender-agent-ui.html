@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI Tender Agent</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#fff;--soft:#f3faf5;--ink:#14231a;--mute:#66756b;--line:#e4ebe6;--g:#15803d;--gd:#116b33;--gl:#dcf3e3;--red:#b42318;--redbg:#fde8e6;--amb:#9a6200;--ambbg:#fdf1d6;--on:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1511;--soft:#141e18;--ink:#e7efe9;--mute:#93a399;--line:#25322a;--g:#4ade80;--gd:#86efac;--gl:#16301f;--red:#f4887f;--redbg:#3a1b18;--amb:#f2bb55;--ambbg:#392b10;--on:#0e1511}}
+:root[data-theme="dark"]{--bg:#0e1511;--soft:#141e18;--ink:#e7efe9;--mute:#93a399;--line:#25322a;--g:#4ade80;--gd:#86efac;--gl:#16301f;--red:#f4887f;--redbg:#3a1b18;--amb:#f2bb55;--ambbg:#392b10;--on:#0e1511}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font:14.5px/1.5 "DM Sans",system-ui,sans-serif}
+.app{display:grid;grid-template-columns:200px 1fr;min-height:100vh}
+.side{border-right:1px solid var(--line);padding:18px 12px;background:var(--bg)}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px;padding:0 8px 18px}
+.logo i{width:22px;height:22px;border-radius:6px;background:var(--g);display:inline-block}
+.side button{display:block;width:100%;text-align:left;font:inherit;color:var(--mute);background:none;border:0;border-radius:6px;padding:8px 10px;margin-bottom:2px;cursor:pointer}
+.side button[aria-current=true]{background:var(--gl);color:var(--g);font-weight:600}
+button:focus-visible{outline:2px solid var(--g);outline-offset:2px}
+.main{padding:24px;min-width:0;max-width:980px}
+h1{font-size:21px;margin:0 0 2px}
+.mute{color:var(--mute);font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}
+.stat{border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.stat b{display:block;font-size:24px;color:var(--g)}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.item{display:flex;gap:10px;justify-content:space-between;align-items:center;width:100%;text-align:left;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:11px 12px;margin-bottom:8px;cursor:pointer}
+.item:hover,.item[aria-pressed=true]{border-color:var(--g);background:var(--soft)}
+.item b{display:block;font-weight:600}
+.pill{font-size:12px;font-weight:600;border-radius:99px;padding:2px 9px;white-space:nowrap}
+.ok{background:var(--gl);color:var(--g)}.bad{background:var(--redbg);color:var(--red)}.warn{background:var(--ambbg);color:var(--amb)}
+.card{border:1px solid var(--line);border-radius:8px;padding:16px}
+.card h2{margin:0 0 4px;font-size:16px}
+.score{display:flex;align-items:baseline;gap:8px;margin:10px 0 4px}
+.score b{font-size:30px;color:var(--g)}
+.bar{height:6px;background:var(--gl);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--g)}
+ul.chk{list-style:none;margin:12px 0;padding:0}
+ul.chk li{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.btn{font:inherit;font-weight:600;background:var(--g);color:var(--on);border:0;border-radius:6px;padding:9px 16px;cursor:pointer}
+.btn:hover{background:var(--gd)}
+.btn[disabled]{opacity:.5;cursor:default}
+table{width:100%;border-collapse:collapse;margin-top:12px}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line)}
+th{color:var(--mute);font-weight:500;font-size:13px}
+.scroll{overflow-x:auto}
+.toast{margin-top:10px;color:var(--g);font-weight:600;min-height:20px}
+@media(max-width:760px){.app{grid-template-columns:1fr}.side{display:flex;gap:4px;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line);padding:10px}.logo{display:none}.side button{width:auto;white-space:nowrap;margin:0}.split{grid-template-columns:1fr}.stats{grid-template-columns:1fr}.main{padding:16px}}
+</style>
+</head>
+<body>
+<div class="app">
+<nav class="side" id="side"><div class="logo"><i></i>Tender Agent</div></nav>
+<main class="main" id="main"></main>
+</div>
+<script>
+var T=[
+{n:"LED street lights, 4,000 units",s:"GeM · Pune Municipal Corp",d:"6 days left",m:92,v:"Bid",c:"ok",r:[["Turnover ₹50 lakh (MSME relaxed)","ok","Met"],["2 similar orders in 3 years","ok","Met"],["BIS certificate","ok","Valid"],["ISO 9001 certificate","bad","Expired"],["EMD ₹1.2 lakh","ok","Exempt"]],w:"You meet 4 of 5 requirements. Renew your ISO 9001 certificate to complete the bid."},
+{n:"Annual maintenance of electrical panels",s:"CPPP · Western Railway",d:"11 days left",m:81,v:"Bid",c:"ok",r:[["Turnover ₹30 lakh","ok","Met"],["Similar work, 1 order","ok","Met"],["Electrical licence","ok","Valid"],["EMD","ok","Exempt"]],w:"You meet every requirement. Add your yearly rate to finish the price sheet."},
+{n:"Solar water heaters, 12 hostels",s:"Maharashtra portal",d:"4 days left",m:58,v:"Check",c:"warn",r:[["Turnover ₹60 lakh","bad","Short by ₹8 lakh"],["MNRE approved model","ok","Valid"],["EMD ₹80,000","warn","Pay online"]],w:"Your turnover is below the limit and the deadline is close. Bid only if you can team up with a partner."},
+{n:"HT transformers, 500 kVA",s:"GeM · MSEDCL",d:"9 days left",m:34,v:"Skip",c:"bad",r:[["5 years of experience","bad","You have 2"],["Type test report","bad","Missing"]],w:"Two key requirements are not met, so this tender is not a good fit."}];
+var V=[["GST registration","Never expires","ok","Valid"],["PAN card","Never expires","ok","Valid"],["Udyam certificate","Renew by 31 Mar 2027","ok","Valid"],["ISO 9001 certificate","Expired 12 Jan 2026","bad","Expired"],["BIS licence","Expires 20 Nov 2026","warn","Expires in 46 days"],["Experience letter, Nagpur","Issued 2024","ok","Valid"]];
+var B=[["LED street lights, 4,000 units","Draft ready, waiting for your approval","warn"],["Cable laying, Nashik zone","Submitted 28 Sep, opens 8 Oct","ok"],["Office UPS supply, NMDC","Won, order received","ok"]];
+var cur="tenders",sel=0,done={};
+var side=document.getElementById("side"),main=document.getElementById("main");
+var views={tenders:"Tenders",vault:"Document vault",bids:"My bids"};
+Object.keys(views).forEach(function(k){var b=document.createElement("button");b.dataset.k=k;b.textContent=views[k];b.onclick=function(){cur=k;render()};side.appendChild(b)});
+function tenders(){
+ var t=T[sel];
+ var h='<h1>Good morning</h1><div class="mute">4 new tenders match your business today.</div><div class="stats"><div class="stat"><b>4</b>New matches</div><div class="stat"><b>2</b>Worth bidding</div><div class="stat"><b>1</b>Document to renew</div></div><div class="split"><div>';
+ T.forEach(function(x,i){h+='<button class="item" data-i="'+i+'" aria-pressed="'+(i===sel)+'"><span><b>'+x.n+'</b><span class="mute">'+x.s+' · '+x.d+'</span></span><span class="pill '+x.c+'">'+x.v+' '+x.m+'%</span></button>'});
+ h+='</div><div class="card"><h2>'+t.n+'</h2><div class="mute">'+t.s+'</div><div class="score"><b>'+t.m+'%</b><span class="mute">match</span></div><div class="bar"><i style="width:'+t.m+'%"></i></div><p>'+t.w+'</p><ul class="chk">';
+ t.r.forEach(function(r){h+='<li><span>'+r[0]+'</span><span class="pill '+r[1]+'">'+r[2]+'</span></li>'});
+ h+='</ul>'+(t.v==="Skip"?'<button class="btn" disabled>Not a good fit</button>':'<button class="btn" id="prep"'+(done[sel]?' disabled':'')+'>'+(done[sel]?'Bid package started':'Prepare bid')+'</button>')+'<div class="toast" id="toast"></div></div></div>';
+ return h}
+function vault(){var h='<h1>Document vault</h1><div class="mute">Upload each document once. We remind you before it expires.</div><div class="scroll"><table><tr><th>Document</th><th>Validity</th><th>Status</th></tr>';
+ V.forEach(function(v){h+='<tr><td>'+v[0]+'</td><td class="mute">'+v[1]+'</td><td><span class="pill '+v[2]+'">'+v[3]+'</span></td></tr>'});
+ return h+'</table></div><p><button class="btn">Upload document</button></p>'}
+function bids(){var h='<h1>My bids</h1><div class="mute">Every bid waits for your approval before it is submitted.</div><div style="margin-top:16px">';
+ B.forEach(function(b){h+='<div class="item" style="cursor:default"><span><b>'+b[0]+'</b><span class="mute">'+b[1]+'</span></span><span class="pill '+b[2]+'">'+(b[2]==="warn"?"Review":"On track")+'</span></div>'});
+ return h+'</div>'}
+function render(){
+ [].forEach.call(side.querySelectorAll("button"),function(b){b.setAttribute("aria-current",b.dataset.k===cur)});
+ main.innerHTML={tenders:tenders,vault:vault,bids:bids}[cur]();
+ [].forEach.call(main.querySelectorAll("[data-i]"),function(b){b.onclick=function(){sel=+b.dataset.i;render()}});
+ var p=document.getElementById("prep");if(p)p.onclick=function(){done[sel]=true;render();document.getElementById("toast").textContent="Bid package started. We will ask you to review it."};
+}
+render();
+</script>
+</body>
+</html>
