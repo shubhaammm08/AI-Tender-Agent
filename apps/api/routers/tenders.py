@@ -4,13 +4,15 @@ from datetime import datetime
 import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
 from packages.adapters.gem import GeMAdapter
+from packages.adapters.cppp import CPPPAdapter
+from packages.adapters.maharashtra import MaharashtraAdapter
 
 router = APIRouter(prefix="/tenders", tags=["Tenders"])
 
 @router.get("/health")
 def check_adapters_health():
     health_status = {}
-    adapters = [GeMAdapter()]
+    adapters = [GeMAdapter(), CPPPAdapter(), MaharashtraAdapter()]
     
     for adapter in adapters:
         try:

@@ -4,6 +4,7 @@ from models.tender_chunk import TenderChunk
 from models.reminder import Reminder
 from models.bid_document import BidDocument
 from models.past_bid_chunk import PastBidChunk
+from models.price_history import PriceHistory
 
 # Re-exporting
-__all__ = ["Base", "Tenant", "User", "CompanyProfile", "Document", "TenderChunk", "Reminder", "BidDocument", "PastBidChunk"]
+__all__ = ["Base", "Tenant", "User", "CompanyProfile", "Document", "TenderChunk", "Reminder", "BidDocument", "PastBidChunk", "PriceHistory"]

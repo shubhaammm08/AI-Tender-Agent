@@ -46,3 +46,9 @@ class Document(Base, TimestampMixin):
     issued_on = Column(Date)
     expires_on = Column(Date)
     version = Column(Integer, nullable=False, default=1)
+
+class UserTenantAccess(Base):
+    __tablename__ = "user_tenant_access"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.id"), nullable=False)
