@@ -1,68 +1,166 @@
-import Image from "next/image";
+"use client";
+import { useState } from "react";
 
-export default function Home() {
+// Mock Data
+const T = [
+  { n: "LED street lights, 4,000 units", s: "GeM · Pune Municipal Corp", d: "6 days left", m: 92, v: "Bid", c: "ok", r: [["Turnover ₹50 lakh (MSME relaxed)", "ok", "Met"], ["2 similar orders in 3 years", "ok", "Met"], ["BIS certificate", "ok", "Valid"], ["ISO 9001 certificate", "bad", "Expired"], ["EMD ₹1.2 lakh", "ok", "Exempt"]], w: "You meet 4 of 5 requirements. Renew your ISO 9001 certificate to complete the bid." },
+  { n: "Annual maintenance of electrical panels", s: "CPPP · Western Railway", d: "11 days left", m: 81, v: "Bid", c: "ok", r: [["Turnover ₹30 lakh", "ok", "Met"], ["Similar work, 1 order", "ok", "Met"], ["Electrical licence", "ok", "Valid"], ["EMD", "ok", "Exempt"]], w: "You meet every requirement. Add your yearly rate to finish the price sheet." },
+  { n: "Solar water heaters, 12 hostels", s: "Maharashtra portal", d: "4 days left", m: 58, v: "Check", c: "warn", r: [["Turnover ₹60 lakh", "bad", "Short by ₹8 lakh"], ["MNRE approved model", "ok", "Valid"], ["EMD ₹80,000", "warn", "Pay online"]], w: "Your turnover is below the limit and the deadline is close. Bid only if you can team up with a partner." },
+  { n: "HT transformers, 500 kVA", s: "GeM · MSEDCL", d: "9 days left", m: 34, v: "Skip", c: "bad", r: [["5 years of experience", "bad", "You have 2"], ["Type test report", "bad", "Missing"]], w: "Two key requirements are not met, so this tender is not a good fit." }
+];
+
+const V = [
+  ["GST registration", "Never expires", "ok", "Valid"],
+  ["PAN card", "Never expires", "ok", "Valid"],
+  ["Udyam certificate", "Renew by 31 Mar 2027", "ok", "Valid"],
+  ["ISO 9001 certificate", "Expired 12 Jan 2026", "bad", "Expired"],
+  ["BIS licence", "Expires 20 Nov 2026", "warn", "Expires in 46 days"],
+  ["Experience letter, Nagpur", "Issued 2024", "ok", "Valid"]
+];
+
+const B = [
+  ["LED street lights, 4,000 units", "Draft ready, waiting for your approval", "warn"],
+  ["Cable laying, Nashik zone", "Submitted 28 Sep, opens 8 Oct", "ok"],
+  ["Office UPS supply, NMDC", "Won, order received", "ok"]
+];
+
+export default function Page() {
+  const [cur, setCur] = useState("tenders");
+  const [sel, setSel] = useState(0);
+  const [done, setDone] = useState<Record<number, boolean>>({});
+  const [toast, setToast] = useState("");
+
+  const handlePrepareBid = () => {
+    setDone(prev => ({ ...prev, [sel]: true }));
+    setToast("Bid package started. We will ask you to review it.");
+    setTimeout(() => setToast(""), 5000);
+  };
+
+  const renderTenders = () => {
+    const t = T[sel];
+    return (
+      <>
+        <h1>Good morning</h1>
+        <div className="mute">4 new tenders match your business today.</div>
+        <div className="stats">
+          <div className="stat"><b>4</b>New matches</div>
+          <div className="stat"><b>2</b>Worth bidding</div>
+          <div className="stat"><b>1</b>Document to renew</div>
+        </div>
+        <div className="split">
+          <div>
+            {T.map((x, i) => (
+              <button
+                key={i}
+                className="item"
+                aria-pressed={i === sel}
+                onClick={() => { setSel(i); setToast(""); }}
+              >
+                <span>
+                  <b>{x.n}</b>
+                  <span className="mute">{x.s} · {x.d}</span>
+                </span>
+                <span className={`pill ${x.c}`}>{x.v} {x.m}%</span>
+              </button>
+            ))}
+          </div>
+          <div className="card">
+            <h2>{t.n}</h2>
+            <div className="mute">{t.s}</div>
+            <div className="score">
+              <b>{t.m}%</b>
+              <span className="mute">match</span>
+            </div>
+            <div className="bar"><i style={{ width: `${t.m}%` }}></i></div>
+            <p>{t.w}</p>
+            <ul className="chk">
+              {t.r.map((r, idx) => (
+                <li key={idx}>
+                  <span>{r[0]}</span>
+                  <span className={`pill ${r[1]}`}>{r[2]}</span>
+                </li>
+              ))}
+            </ul>
+            {t.v === "Skip" ? (
+              <button className="btn" disabled>Not a good fit</button>
+            ) : (
+              <button
+                className="btn"
+                disabled={done[sel]}
+                onClick={handlePrepareBid}
+              >
+                {done[sel] ? 'Bid package started' : 'Prepare bid'}
+              </button>
+            )}
+            <div className="toast">{toast}</div>
+          </div>
+        </div>
+      </>
+    );
+  };
+
+  const renderVault = () => (
+    <>
+      <h1>Document vault</h1>
+      <div className="mute">Upload each document once. We remind you before it expires.</div>
+      <div className="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Document</th>
+              <th>Validity</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {V.map((v, idx) => (
+              <tr key={idx}>
+                <td>{v[0]}</td>
+                <td className="mute">{v[1]}</td>
+                <td><span className={`pill ${v[2]}`}>{v[3]}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p><button className="btn">Upload document</button></p>
+    </>
+  );
+
+  const renderBids = () => (
+    <>
+      <h1>My bids</h1>
+      <div className="mute">Every bid waits for your approval before it is submitted.</div>
+      <div style={{ marginTop: '16px' }}>
+        {B.map((b, idx) => (
+          <div key={idx} className="item" style={{ cursor: 'default' }}>
+            <span>
+              <b>{b[0]}</b>
+              <span className="mute">{b[1]}</span>
+            </span>
+            <span className={`pill ${b[2]}`}>
+              {b[2] === "warn" ? "Review" : "On track"}
+            </span>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="app-container">
+      <nav className="sidebar">
+        <div className="logo">
+          <i></i>Tender Agent
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+        <button aria-current={cur === "tenders"} onClick={() => setCur("tenders")}>Tenders</button>
+        <button aria-current={cur === "vault"} onClick={() => setCur("vault")}>Document vault</button>
+        <button aria-current={cur === "bids"} onClick={() => setCur("bids")}>My bids</button>
+      </nav>
+      <main className="main-content">
+        {cur === "tenders" && renderTenders()}
+        {cur === "vault" && renderVault()}
+        {cur === "bids" && renderBids()}
       </main>
     </div>
   );

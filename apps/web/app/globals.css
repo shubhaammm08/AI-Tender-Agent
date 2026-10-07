@@ -1,26 +1,349 @@
-@import "tailwindcss";
-
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --bg: #fff;
+  --soft: #f3faf5;
+  --ink: #14231a;
+  --mute: #66756b;
+  --line: #e4ebe6;
+  --g: #15803d;
+  --gd: #116b33;
+  --gl: #dcf3e3;
+  --red: #b42318;
+  --redbg: #fde8e6;
+  --amb: #9a6200;
+  --ambbg: #fdf1d6;
+  --on: #fff;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not([data-theme="light"]) {
+    --bg: #0e1511;
+    --soft: #141e18;
+    --ink: #e7efe9;
+    --mute: #93a399;
+    --line: #25322a;
+    --g: #4ade80;
+    --gd: #86efac;
+    --gl: #16301f;
+    --red: #f4887f;
+    --redbg: #3a1b18;
+    --amb: #f2bb55;
+    --ambbg: #392b10;
+    --on: #0e1511;
   }
 }
 
+:root[data-theme="dark"] {
+  --bg: #0e1511;
+  --soft: #141e18;
+  --ink: #e7efe9;
+  --mute: #93a399;
+  --line: #25322a;
+  --g: #4ade80;
+  --gd: #86efac;
+  --gl: #16301f;
+  --red: #f4887f;
+  --redbg: #3a1b18;
+  --amb: #f2bb55;
+  --ambbg: #392b10;
+  --on: #0e1511;
+}
+
+html {
+  height: 100%;
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--ink);
+  font: 14.5px/1.5 "DM Sans", system-ui, sans-serif;
+}
+
+.app-container {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  min-height: 100vh;
+}
+
+.sidebar {
+  border-right: 1px solid var(--line);
+  padding: 18px 12px;
+  background: var(--bg);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 0 8px 18px;
+}
+
+.logo i {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--g);
+  display: inline-block;
+}
+
+.sidebar button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: var(--mute);
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 2px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sidebar button[aria-current="true"] {
+  background: var(--gl);
+  color: var(--g);
+  font-weight: 600;
+}
+
+.sidebar button:hover:not([aria-current="true"]) {
+  background: var(--soft);
+}
+
+button:focus-visible {
+  outline: 2px solid var(--g);
+  outline-offset: 2px;
+}
+
+.main-content {
+  padding: 24px;
+  min-width: 0;
+  max-width: 980px;
+}
+
+h1 {
+  font-size: 21px;
+  margin: 0 0 2px;
+}
+
+.mute {
+  color: var(--mute);
+  font-size: 13px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.stat {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 14px;
+  background: var(--bg);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  transition: transform 0.2s;
+}
+
+.stat:hover {
+  transform: translateY(-2px);
+}
+
+.stat b {
+  display: block;
+  font-size: 24px;
+  color: var(--g);
+}
+
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.item {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 11px 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.item:hover, .item[aria-pressed="true"] {
+  border-color: var(--g);
+  background: var(--soft);
+}
+
+.item b {
+  display: block;
+  font-weight: 600;
+}
+
+.pill {
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 99px;
+  padding: 2px 9px;
+  white-space: nowrap;
+}
+
+.ok { background: var(--gl); color: var(--g); }
+.bad { background: var(--redbg); color: var(--red); }
+.warn { background: var(--ambbg); color: var(--amb); }
+
+.card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+  background: var(--bg);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+.card h2 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+
+.score {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 10px 0 4px;
+}
+
+.score b {
+  font-size: 30px;
+  color: var(--g);
+}
+
+.bar {
+  height: 6px;
+  background: var(--gl);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.bar i {
+  display: block;
+  height: 100%;
+  background: var(--g);
+  transition: width 0.5s ease-out;
+}
+
+ul.chk {
+  list-style: none;
+  margin: 12px 0;
+  padding: 0;
+}
+
+ul.chk li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 13.5px;
+}
+
+.btn {
+  font: inherit;
+  font-weight: 600;
+  background: var(--g);
+  color: var(--on);
+  border: 0;
+  border-radius: 6px;
+  padding: 9px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn:hover {
+  background: var(--gd);
+}
+
+.btn[disabled] {
+  opacity: 0.5;
+  cursor: default;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+th, td {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+th {
+  color: var(--mute);
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.scroll {
+  overflow-x: auto;
+}
+
+.toast {
+  margin-top: 10px;
+  color: var(--g);
+  font-weight: 600;
+  min-height: 20px;
+}
+
+@media (max-width: 760px) {
+  .app-container {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    padding: 10px;
+  }
+  .logo {
+    display: none;
+  }
+  .sidebar button {
+    width: auto;
+    white-space: nowrap;
+    margin: 0;
+  }
+  .split {
+    grid-template-columns: 1fr;
+  }
+  .stats {
+    grid-template-columns: 1fr;
+  }
+  .main-content {
+    padding: 16px;
+  }
 }
