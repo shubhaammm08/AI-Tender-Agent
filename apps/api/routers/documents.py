@@ -71,15 +71,48 @@ def check_document_issues(
             )
             
     # Check missing (Example common mandatory types)
-    required_types = {"GST", "PAN", "Udyam"}
+    required_types = {"GST", "PAN", "Udyam", "Non-Blacklisting Declaration"}
     for req in required_types:
         if req not in doc_types_present:
+            action = "generate_declaration" if req in ["Non-Blacklisting Declaration", "Local Content Declaration"] else "upload"
             issues.append(
                 DocumentIssue(
                     type=req,
                     issue="missing",
-                    message=f"Missing {req} certificate"
+                    message=f"Missing {req} certificate",
+                    resolution_action=action
                 )
             )
             
     return issues
+
+from pydantic import BaseModel
+
+class DeclarationRequest(BaseModel):
+    declaration_type: str # e.g. "Non-Blacklisting", "Local Content"
+    tender_id: Optional[UUID] = None
+
+@router.post("/generate-declaration", response_model=DocumentResponse)
+def generate_declaration(
+    req: DeclarationRequest,
+    db: Session = Depends(get_db),
+    tenant_id: UUID = Depends(get_current_tenant)
+):
+    # Retrieve tenant profile to fill the template
+    # mock logic for generating a document file
+    file_key = f"tenant/{tenant_id}/declarations/{req.declaration_type.replace(' ', '_').lower()}.pdf"
+    
+    # In a real scenario, we'd use reportlab/jinja to create a PDF and upload to S3/MinIO
+    # and save the DB record.
+    doc = Document(
+        tenant_id=tenant_id,
+        type=req.declaration_type,
+        file_key=file_key,
+        issued_on=date.today(),
+        expires_on=date.today() + timedelta(days=365) # Declarations usually valid for a year or tender specific
+    )
+    db.add(doc)
+    db.commit()
+    db.refresh(doc)
+    
+    return doc

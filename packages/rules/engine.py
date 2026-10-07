@@ -52,3 +52,42 @@ class RulesEngine:
         self.db.refresh(match)
         
         return match
+
+    def generate_compliance_matrix(self, tender_id: UUID) -> list:
+        profile = self.db.query(CompanyProfile).filter_by(tenant_id=self.tenant_id).first()
+        documents = self.db.query(Document).filter_by(tenant_id=self.tenant_id).all()
+        requirements = self.db.query(Requirement).filter_by(tender_id=tender_id).all()
+        
+        doc_types = {doc.type for doc in documents}
+        matrix = []
+
+        for req in requirements:
+            status = "not_met"
+            evidence = "Missing"
+            
+            if req.type == "turnover":
+                req_val = float(req.value.get("amount", 0))
+                if profile and profile.turnover and profile.turnover >= req_val:
+                    status = "met"
+                    evidence = f"Profile turnover: {profile.turnover}"
+                else:
+                    evidence = f"Profile turnover {profile.turnover if profile else 0} < {req_val}"
+            
+            elif req.type == "certificate":
+                cert_name = req.value.get("name")
+                if cert_name in doc_types:
+                    status = "met"
+                    evidence = f"Found document: {cert_name}"
+                else:
+                    evidence = f"Missing document: {cert_name}"
+            
+            matrix.append({
+                "requirement_type": req.type,
+                "requirement_value": req.value,
+                "mandatory": req.mandatory,
+                "clause": req.clause,
+                "status": status,
+                "evidence": evidence
+            })
+            
+        return matrix

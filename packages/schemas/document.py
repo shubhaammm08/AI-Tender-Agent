@@ -25,3 +25,4 @@ class DocumentIssue(BaseModel):
     issue: str # "missing" or "expiring"
     message: str
     expires_on: Optional[date] = None
+    resolution_action: Optional[str] = None # e.g. "generate_declaration", "upload"

@@ -26,3 +26,21 @@ def check_adapters_health():
             health_status[adapter.name] = f"error: {str(e)}"
             
     return health_status
+
+from sqlalchemy.orm import Session
+from database import get_db
+from dependencies import get_current_tenant
+from uuid import UUID
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
+from packages.rules.engine import RulesEngine
+
+@router.get("/{tender_id}/compliance-matrix")
+def get_compliance_matrix(
+    tender_id: UUID,
+    db: Session = Depends(get_db),
+    tenant_id: UUID = Depends(get_current_tenant)
+):
+    engine = RulesEngine(db, tenant_id)
+    matrix = engine.generate_compliance_matrix(tender_id)
+    return {"tender_id": str(tender_id), "matrix": matrix}

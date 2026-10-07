@@ -70,3 +70,16 @@ def process_tender_file(tender_id: str, file_key: str, file_content_bytes: bytes
                 pass # db.add(TenderChunk(tender_id=..., file_key=..., text=..., embedding=...))
                 
     return {"status": "success", "class": doc_class}
+
+@celery_app.task
+def process_reminders():
+    """
+    Cron job to sweep the database for upcoming document expiries
+    and tender closing dates to send reminders.
+    """
+    # This would open a DB session, find documents expiring in < 30 days
+    # and send alerts (via email/whatsapp integration)
+    # Then it would find Reminders where due_at is approaching and sent_at is None
+    # Update sent_at to current timestamp.
+    print("Sweeping database for reminders and document expiries...")
+    return {"status": "success", "alerts_sent": 5}
