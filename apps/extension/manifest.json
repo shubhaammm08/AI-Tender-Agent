@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "AI Tender Agent - Autofill & Submit",
+  "version": "1.0",
+  "description": "Bridges AI Tender Agent SaaS with local government portals for assisted submission.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "*://gem.gov.in/*",
+    "*://eprocure.gov.in/*",
+    "*://mahatenders.gov.in/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://gem.gov.in/*",
+        "*://eprocure.gov.in/*",
+        "*://mahatenders.gov.in/*"
+      ],
+      "js": ["content_script.js"]
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "AI Tender Agent"
+  }
+}

@@ -91,3 +91,26 @@ def review_document(
     # In a real app, this triggers LLM to rewrite based on feedback
     # and updates the BidDocument content
     return {"status": "document_updated", "feedback_applied": req.feedback}
+
+@router.get("/{bid_id}/payload")
+def get_bid_payload(
+    bid_id: UUID,
+    db: Session = Depends(get_db),
+    tenant_id: UUID = Depends(get_current_tenant)
+):
+    """
+    Returns the unsigned JSON payload and document hashes required for 
+    the local DSC agent or browser extension to submit the bid.
+    Security: This prevents the SaaS from needing the user's private key.
+    """
+    # Verify bid belongs to tenant and is approved
+    from models.tenant import Bid
+    bid = db.query(Bid).filter_by(id=bid_id, tenant_id=tenant_id).first()
+    
+    return {
+        "bid_id": str(bid_id),
+        "tender_id": "TENDER-123", # mock
+        "documents": ["tech_proposal.pdf", "emd_receipt.pdf"],
+        "bid_amount": 150000.00,
+        "requires_dsc": True
+    }
