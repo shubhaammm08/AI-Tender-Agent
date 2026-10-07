@@ -12,6 +12,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from routers import profile, documents
+
+app.include_router(profile.router, prefix="/api/v1")
+app.include_router(documents.router, prefix="/api/v1")
+
 @app.get("/api/v1/health")
 def health_check():
     return {"status": "ok"}
