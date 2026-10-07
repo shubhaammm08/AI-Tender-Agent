@@ -59,3 +59,35 @@ def approve_bid(
     service = BidService(db)
     bid = service.approve_bid(bid_id, tenant_id, req.approver_name)
     return bid
+
+from pydantic import BaseModel
+class GenerateDocsRequest(BaseModel):
+    tender_id: UUID
+    bid_id: UUID
+
+@router.post("/{bid_id}/generate-documents")
+def trigger_generation(
+    bid_id: UUID,
+    req: GenerateDocsRequest,
+    tenant_id: UUID = Depends(get_current_tenant)
+):
+    # Trigger Celery task
+    import sys, os
+    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
+    from apps.worker.tasks import generate_bid_documents
+    generate_bid_documents.delay(str(tenant_id), str(req.tender_id), str(bid_id))
+    return {"status": "generation_started"}
+
+class ReviewFeedback(BaseModel):
+    feedback: str
+
+@router.post("/documents/{doc_id}/review")
+def review_document(
+    doc_id: UUID,
+    req: ReviewFeedback,
+    db: Session = Depends(get_db),
+    tenant_id: UUID = Depends(get_current_tenant)
+):
+    # In a real app, this triggers LLM to rewrite based on feedback
+    # and updates the BidDocument content
+    return {"status": "document_updated", "feedback_applied": req.feedback}

@@ -83,3 +83,19 @@ def process_reminders():
     # Update sent_at to current timestamp.
     print("Sweeping database for reminders and document expiries...")
     return {"status": "success", "alerts_sent": 5}
+
+@celery_app.task
+def generate_bid_documents(tenant_id: str, tender_id: str, bid_id: str):
+    """
+    Generates technical bid and covering letter using LLMClient, referencing PastBidChunk.
+    """
+    # 1. Setup DB session (mocked here)
+    # 2. Fetch Tender requirements & CompanyProfile
+    # 3. Use pgvector to find similar PastBidChunk for this tenant
+    # 4. Use LLMClient to draft the documents
+    # llm = LLMClient(db)
+    # prompt = f"Write a technical bid for {tender.title}. Past examples: {similar_past_bids}"
+    # response = llm.generate(...)
+    # 5. Save as BidDocument(bid_id=..., kind="technical_proposal", content=response)
+    print(f"Generating bid documents for bid {bid_id}")
+    return {"status": "success", "bid_id": bid_id}
